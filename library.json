@@ -1,0 +1,20 @@
+{
+    "name": "TinyBash",
+    "keywords": "bash, tool",
+    "description": "TinyBash is a lightweight shell looking like bash",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/hsaturn/TinyBash.git"
+    },
+    "dependencies":
+    { },
+    "version": "1.0.0",
+    "exclude": "",
+    "examples": "examples/*/*.ino",
+    "frameworks": "arduino",
+    "platforms": [
+        "atmelavr",
+        "espressif8266",
+        "espressif32"
+    ]
+}
