@@ -1,6 +1,17 @@
 #pragma once
 #include "TinyTerm.h"
 
+namespace tiny_bash
+{
+
+#undef stdout
+#undef stderr
+#undef stdin
+
+extern Stream* stdout;
+extern Stream* stderr;
+extern Stream* stdin;
+
 class TinyApp
 {
 	public:
@@ -26,3 +37,5 @@ class TinyApp
 		TinyTerm::CallBackMouse cbm;
 		AppState state_;
 };
+
+}

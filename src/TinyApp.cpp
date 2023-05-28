@@ -1,5 +1,11 @@
 #include "TinyApp.h"
 
+namespace tiny_bash
+{
+  Stream* stdout;
+  Stream* stdin;
+  Stream* stderr;
+  
 TinyApp::TinyApp(TinyTerm* term) : term(term), state_(RUNNING)
 {
   if (term)
@@ -22,3 +28,5 @@ void TinyApp::terminate()
 {
   state_ = ENDED;
 }
+
+} // ns tiny_bash
