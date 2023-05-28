@@ -1,4 +1,4 @@
-# TinyBash
+# TinyBash for ESP / ESP32
 Mini Shell allowing to run tiny apps, with minimal busybox
 
 - support for /etc/shrc file
