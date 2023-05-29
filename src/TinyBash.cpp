@@ -111,16 +111,16 @@ string TinyBash::buildPrompt(string ps1) const
 }
 
 
-static tiny_vim::Window vim_term(0,0,0,0);
+static tiny_vim::Window vim_win(0,0,0,0);
 static tiny_vim::Splitter main_splitter(false, 20);
 void resizeVimTerm()
 {
-  if (vim_term.top==0)
+  if (vim_win.top==0)
   {
-    vim_term.top=1;
-    vim_term.left=1;
-    vim_term.width=Term.sx;
-    vim_term.height=Term.sy;
+    vim_win.top=1;
+    vim_win.left=1;
+    vim_win.width=Term.sx;
+    vim_win.height=Term.sy;
   };
 }
 
@@ -218,7 +218,7 @@ void TinyBash::onCommandInt(const string& s)
       }
       else if (cmd == "draw")
       {
-        main_splitter.draw(vim_term);
+        main_splitter.draw(vim_win, Term);
         Term << endl;
       }
       else if (cmd == "term")
@@ -232,29 +232,29 @@ void TinyBash::onCommandInt(const string& s)
             int16_t w = getInt(args);
             int16_t h = getInt(args);
             if (w && h)
-              vim_term = tiny_vim::Window(dy, dx, w, h);
+              vim_win = tiny_vim::Window(dy, dx, w, h);
             else
               *stdout << "invalid" << endl;
           }
           else
           {
-            vim_term.left += dx;
-            vim_term.top += dy;
-            vim_term.width -= 2*dx;
-            vim_term.height -= 2*dy;
+            vim_win.left += dx;
+            vim_win.top += dy;
+            vim_win.width -= 2*dx;
+            vim_win.height -= 2*dy;
           }
         }
-        vim_term.frame(Term);
-        *stdout << vim_term << endl;
+        vim_win.frame(Term);
+        *stdout << vim_win << endl;
       }
       else if (cmd == "calc")
       {
        uint16_t wid=getInt(args);
         if (wid)
         {
-          Term << "calc " << hex(wid) << " from " << vim_term << endl;
-          bool result = main_splitter.calcWindow(wid, vim_term);
-          Term << (result ? "ok " : "ko ") << vim_term << endl;
+          Term << "calc " << hex(wid) << " from " << vim_win << endl;
+          bool result = main_splitter.calcWindow(wid, vim_win);
+          Term << (result ? "ok " : "ko ") << vim_win << endl;
         }
         else
           Term << "bad wid" << endl;
@@ -265,12 +265,12 @@ void TinyBash::onCommandInt(const string& s)
         string dir=getWord(args);
         uint16_t size=getInt(args);
         if (isdigit(args[0]) and size and (dir == "v" or dir == "h"))
-          main_splitter.split(wid, vim_term, dir[0]=='v', getInt(args), size);
+          main_splitter.split(wid, vim_win, dir[0]=='v', getInt(args), size);
         else
           Term << "split error in args " << args << endl;
       }
-      else if (cmd=="dump") main_splitter.dump(vim_term);
-      else if (cmd=="dump2") main_splitter.dump2(vim_term);
+      else if (cmd=="dump") main_splitter.dump(vim_win);
+      else if (cmd=="dump2") main_splitter.dump2(vim_win);
       else *stdout << "Unknown command (" << cmd << ")" << endl;
     }},
     { "reset", [](string& args) { reset(); }},
@@ -765,12 +765,12 @@ void TinyBash::onMouse(const TinyTerm::MouseEvent& evt)
   resizeVimTerm();
 
   tiny_vim::Cursor coords(evt.y, evt.x);
-  tiny_vim::Window tmp_term(vim_term);
+  tiny_vim::Window tmp_term(vim_win);
   auto wid = main_splitter.findWindow(tmp_term, coords);
   Term.saveCursor();
   Term.gotoxy(1, Term.sx/3);
   Term << "mouse " << hex(evt.value) << ' ' << coords
-    << ", vim_term:" << hex(wid) << ' ' << tmp_term << "    " << endl;
+    << ", vim_win:" << hex(wid) << ' ' << tmp_term << "    " << endl;
   Term.restoreCursor();
 }
 
