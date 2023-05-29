@@ -140,7 +140,11 @@ void TinyBash::onCommand(const string& s)
 
   console << endl;
   onCommandInt(s);
-  prompt();
+  // FIXME
+  if (apps.size()==0)
+    prompt();
+  else
+    console.setPrompt(nullptr);
 }
 
 void TinyBash::onCommandInt(const string& s)
@@ -329,7 +333,6 @@ void TinyBash::onCommandInt(const string& s)
         return true;
       });
       apps.push_back(new TinyVim(&Term, files));
-      *stdout << "vim (" << files << ")" << endl;
   }},
     { { "head", "+n|-n file"}, [](string& args) {
       int rows=getInt(args);
@@ -744,7 +747,6 @@ void TinyBash::onCommandInt(const string& s)
     if (not found)
       *stderr << "Command not found '" << name << "'" << endl;
   }
-  prompt();
 }
 
 void TinyBash::prompt() const
