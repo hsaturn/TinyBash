@@ -216,7 +216,7 @@ void TinyBash::onCommandInt(const string& s)
         Term << "draw" << endl;
         Term << "calc wid" << endl;
         Term << "dump / dump2" << endl;
-        Term << "split wid v|h size 0|1 (side)" << endl;
+        Term << "split wid v|h size" << endl;
         Term << "show wid" << endl;
         Term << "term [dx dy [w h]]" << endl;
       }
@@ -268,8 +268,8 @@ void TinyBash::onCommandInt(const string& s)
         uint16_t wid = getInt(args);
         string dir=getWord(args);
         uint16_t size=getInt(args);
-        if (isdigit(args[0]) and size and (dir == "v" or dir == "h"))
-          main_splitter.split(wid, vim_win, dir[0]=='v', getInt(args), size);
+        if (size and (dir == "v" or dir == "h"))
+          Term << "split=" << main_splitter.split(wid, dir[0], size) << endl;
         else
           Term << "split error in args " << args << endl;
       }
