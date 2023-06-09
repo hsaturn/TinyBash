@@ -14,7 +14,7 @@ using string=std::string;
 class TinyBash : public TinyApp
 {
   public:
-    TinyBash(TinyTerm& term);
+    TinyBash(TinyTerm& term, const TinyEnv& e);
     virtual ~TinyBash() {}
     void onKey(TinyTerm::KeyCode) override;
     void onMouse(const TinyTerm::MouseEvent&) override;

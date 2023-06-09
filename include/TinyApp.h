@@ -12,11 +12,16 @@ extern Stream* stdout;
 extern Stream* stderr;
 extern Stream* stdin;
 
+struct TinyEnv
+{
+	std::string cwd = "/";
+};
+
 class TinyApp
 {
 	public:
 		using Pid = const uint32_t;
-		TinyApp(TinyTerm*);
+		TinyApp(TinyTerm*, const TinyEnv& e);
 		virtual ~TinyApp();
 
 		enum AppState { RUNNING, FREEZE, ENDED };
@@ -31,6 +36,7 @@ class TinyApp
 
 	protected:
 		TinyTerm* term;
+		TinyEnv env;
 
 	private:
 		TinyTerm::CallBackKey cb;
