@@ -1,7 +1,6 @@
 #include "file_util.h"
 #include "string_util.h"
 #include "TinyStreaming.h"
-#include <LittleFS.h>
 #include <TinyTerm.h>
 #include <vector>
 
@@ -17,7 +16,7 @@ void forEachLine(const string name, std::function<void(const std::string&)> fun)
 {
   char cr=0;
   string line;
-  File f=LittleFS.open(name.c_str(), "r");
+  File f=FILE_SYSTEM.open(name.c_str(), "r");
   if (not f)
   {
     Term << "error: cannot open file " << name << endl;
@@ -53,7 +52,7 @@ int forEachFile(const string& cwd, std::string& args, std::function<bool(std::st
   while(args.length())
   {
     string name=getFile(cwd, args);
-    if (LittleFS.exists(name.c_str()))
+    if (FILE_SYSTEM.exists(name.c_str()))
     {
       if (not fun(name)) break;
     }

@@ -2,6 +2,22 @@
 #include <string>
 #include <functional>
 
+// Please use FILE_SYSTEM instead of specific implementation of FS
+// @see https://github.com/bxparks/EpoxyDuino/tree/develop/libraries/EpoxyFS
+
+#if defined(EPOXY_DUINO)
+  #include <EpoxyFS.h>
+  #define FILE_SYSTEM fs::EpoxyFS
+#elif defined(ESP8266)
+  #include <LittleFS.h>
+  #define FILE_SYSTEM LittleFS
+#elif defined(ESP32)
+  #include <LittleFS.h>
+  #define FILE_SYSTEM LittleFS
+#else
+  #error Unsupported platform
+#endif
+
 // Open a file and call fun for each line of it
 void forEachLine(const std::string name, std::function<void(const std::string&)> fun);
 

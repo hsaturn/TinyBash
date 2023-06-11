@@ -1,0 +1,3 @@
+cd /etc
+clear
+echo "Welcom to tinybash"

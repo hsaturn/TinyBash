@@ -173,7 +173,7 @@ void TinyBash::onCommandInt(const string& s)
     string arg=getWordEx(s2);
     if (arg==">" or arg==">>")
     {
-      File redir = LittleFS.open(getFile(env.cwd, s2).c_str(), arg==">" ? "w" : "a");
+      File redir = FILE_SYSTEM.open(getFile(env.cwd, s2).c_str(), arg==">" ? "w" : "a");
       if (redir)
       {
         Stream* old=stdout;
@@ -282,7 +282,7 @@ void TinyBash::onCommandInt(const string& s)
         string dir=getWord(args);
         uint16_t size=getInt(args);
         if (size and (dir == "v" or dir == "h"))
-          Term << "split=" << (int)main_splitter.split(wid, dir[0], size) << endl;
+          Term << "split=" << main_splitter.split(wid, dir[0], size) << endl;
         else
           Term << "split error in args " << args << endl;
       }
@@ -383,11 +383,11 @@ void TinyBash::onCommandInt(const string& s)
     }},
     { "df", [](string&) {
       #ifdef ESP32
-        *stdout << LittleFS.usedBytes() << " bytes on " <<  LittleFS.totalBytes()
-          << ", free: " << LittleFS.totalBytes()-LittleFS.usedBytes() << endl;
+        *stdout << FILE_SYSTEM.usedBytes() << " bytes on " <<  FILE_SYSTEM.totalBytes()
+          << ", free: " << FILE_SYSTEM.totalBytes()-FILE_SYSTEM.usedBytes() << endl;
       #else
         FSInfo infos;
-        LittleFS.info(infos);
+        FILE_SYSTEM.info(infos);
         *stdout << infos.usedBytes << " bytes on " <<  infos.totalBytes
           << ", free: " << infos.totalBytes-infos.usedBytes << endl;
       #endif
@@ -395,10 +395,10 @@ void TinyBash::onCommandInt(const string& s)
     { { "mv", "file file"}, [this](string& args) {
       string source=getFile(env.cwd, args);
       string dest=getFile(env.cwd, args);
-      auto dir=LittleFS.open(dest.c_str(), "r");
+      auto dir=FILE_SYSTEM.open(dest.c_str(), "r");
       if (dir.isDirectory()) dest += '/' + basename(source);
       dir.close();
-      if (dest.length() and LittleFS.rename(source.c_str(), dest.c_str()))
+      if (dest.length() and FILE_SYSTEM.rename(source.c_str(), dest.c_str()))
         return;
       else
         *stdout << "error mv " << source << ' ' << dest << endl;
@@ -409,11 +409,11 @@ void TinyBash::onCommandInt(const string& s)
        if (args.length()==0) args=env.cwd;
         forEachFile(env.cwd, args, [](const string& name)->bool
         {
-          if (LittleFS.exists(name.c_str()))
+          if (FILE_SYSTEM.exists(name.c_str()))
           {
             std::map<String, string> files;
             std::map<String, string> dirs;
-            File dir = LittleFS.open(name.c_str());
+            File dir = FILE_SYSTEM.open(name.c_str());
             while (true)
             {
               File entry = dir.openNextFile();
@@ -441,10 +441,10 @@ void TinyBash::onCommandInt(const string& s)
         if (args.length()==0) args=env.cwd;
         forEachFile(env.cwd, args, [](const string& name)->bool
         {
-          if (LittleFS.exists(name.c_str()))
+          if (FILE_SYSTEM.exists(name.c_str()))
           {
             std::map<String, string> files;
-            Dir dir = LittleFS.openDir(name.c_str());
+            Dir dir = FILE_SYSTEM.openDir(name.c_str());
             if (stdout==&Term) Term << cyan;
             while (dir.next())
             {
@@ -484,7 +484,7 @@ void TinyBash::onCommandInt(const string& s)
       if (args.length()==0) return;
       string output=env.cwd+'/'+basename(args);
       Console << "output file: " << output << '.' << endl;
-      File out = LittleFS.open(output.c_str(), "w");
+      File out = FILE_SYSTEM.open(output.c_str(), "w");
       BearSSL::WiFiClientSecure client;
       client.setInsecure();
       HTTPClient https;
@@ -506,7 +506,7 @@ void TinyBash::onCommandInt(const string& s)
     { { "wc" , "files"}, [this](string& args) {
       forEachFile(env.cwd, args, [](const string& name) -> bool
       {
-        File file=LittleFS.open(name.c_str(), "r");
+        File file=FILE_SYSTEM.open(name.c_str(), "r");
         int cr=0;
         bool word=false;
         int lines=0; int words=0; int chars=0;
@@ -548,7 +548,7 @@ void TinyBash::onCommandInt(const string& s)
         return;
       }
       if (dir[dir.length()-1] != '/') dir += '/';
-      if (LittleFS.exists(dir.c_str()))
+      if (FILE_SYSTEM.exists(dir.c_str()))
         env.cwd=removeRedundantDots(dir);
       else
         *stderr << "not found:" << dir << endl;
@@ -556,7 +556,7 @@ void TinyBash::onCommandInt(const string& s)
     { { "hexdump", "file"}, [this](string& args) {
       forEachFile(env.cwd, args, [](const string& name)->bool
       {
-        File f=LittleFS.open(name.c_str(),"r");
+        File f=FILE_SYSTEM.open(name.c_str(),"r");
         if (f)
         {
           int count=0;
@@ -613,7 +613,7 @@ void TinyBash::onCommandInt(const string& s)
     { "pwd", [this](string& args) { *stdout << env.cwd << endl; }},
     { "free", [](string& args) {
       *stdout << "Stack size " << stacksize() << endl;
-      *stdout << "m: free mem " << freemem() << endl;
+      *stdout << "free mem " << freemem() << endl;
     }},
     { { "ansi", "str"}, [](string& args){
       static const char* CSI="\033[";
@@ -647,7 +647,7 @@ void TinyBash::onCommandInt(const string& s)
       while(args.length())
       {
         string name=getFile(env.cwd,args);
-        File file = LittleFS.open(name.c_str(), "w+");
+        File file = FILE_SYSTEM.open(name.c_str(), "w+");
         if (not file) *stderr << "Error touching " << name << endl;
         file.close();
       }
@@ -655,7 +655,7 @@ void TinyBash::onCommandInt(const string& s)
     { { "append", "file str"}, [this](string& args){
       string name=getFile(env.cwd, args);
       if (name.length()==0) return;
-      File f=LittleFS.open(name.c_str(),"a");
+      File f=FILE_SYSTEM.open(name.c_str(),"a");
       if (f)
       {
         args+="\n\r";
@@ -667,7 +667,7 @@ void TinyBash::onCommandInt(const string& s)
     { {"create", "file rows str"}, [this](string& args){
       string name=getFile(env.cwd, args);
       if (name.length()==0) return;
-      File f=LittleFS.open(name.c_str(),"w");
+      File f=FILE_SYSTEM.open(name.c_str(),"w");
       if (f)
       {
         int t=atol(args.c_str());
@@ -683,24 +683,24 @@ void TinyBash::onCommandInt(const string& s)
       while(args.length())
       {
         string name=getFile(env.cwd, args);
-        if (not LittleFS.mkdir(name.c_str())) *stderr << "error" << endl;
+        if (not FILE_SYSTEM.mkdir(name.c_str())) *stderr << "error" << endl;
       }
     }},
     { {"rmdir", "dir"}, [this](string& args) {
       while(args.length())
       {
         string name=getFile(env.cwd, args);
-        if (not LittleFS.rmdir(name.c_str())) *stderr << "error " << name << endl;
+        if (not FILE_SYSTEM.rmdir(name.c_str())) *stderr << "error " << name << endl;
       }
     }},
     { {"rm", "file"}, [this](string& args) {
       while(args.length())
       {
         string name=getFile(env.cwd, args);
-        LittleFS.remove(name.c_str());
+        FILE_SYSTEM.remove(name.c_str());
       }
     }},
-    { "format", [](string& args) { LittleFS.format(); }},
+    { "format", [](string& args) { FILE_SYSTEM.format(); }},
   };
   string cmd = getWord(args);
 
@@ -728,10 +728,10 @@ void TinyBash::onCommandInt(const string& s)
         path_name=p+'/'+name;
       else
         path_name=env.cwd+'/'+p+'/'+name;
-      if (LittleFS.exists(path_name.c_str()))
+      if (FILE_SYSTEM.exists(path_name.c_str()))
       {
         found=true;
-        File file = LittleFS.open(path_name.c_str(), "r");
+        File file = FILE_SYSTEM.open(path_name.c_str(), "r");
         cmd.clear();
         while (file.available())
         {
@@ -787,7 +787,7 @@ TinyBash::TinyBash(TinyTerm& term, const TinyEnv& e) : TinyApp(&term,e), console
 {
   console.setCallback([this](const string& cmd) { onCommand(cmd); });
   Term.onMouse([this](const TinyTerm::MouseEvent& event) { onMouse(event); });
-  if (!LittleFS.begin())
+  if (!FILE_SYSTEM.begin())
   {
     log_e("a");
     console << "Unable to mount fs" << endl;
