@@ -7,8 +7,9 @@ namespace tiny_bash
   Stream* stderr;
   
 TinyApp::TinyApp(TinyTerm* term, const TinyEnv& e)
-  : term(term), state_(RUNNING)
-  , env(e)
+  : env(e)
+  , term(term)
+  , state_(RUNNING)
 {
   if (term)
   {
