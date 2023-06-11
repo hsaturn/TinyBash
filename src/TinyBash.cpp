@@ -3,16 +3,21 @@
 #include <TinyConsole.h>
 #include <TinyStreaming.h>
 #include <TinyVim.h>
-#include <LittleFS.h>
 #include <string_util.h>
 #include "file_util.h"
 
 #if ESP32
   #include <ESP32Ping.h>  // marian-craciunescu/ESP32Ping 
+#elif defined(EPOXY_DUINO)
+#include <sys/resource.h>
+  void reset() {}
+  auto stacksize()
+  { rlimit l; getrlimit(RLIMIT_STACK, &l); return l.rlim_cur; }
 #else
   #include <ESP8266Ping.h>  // dancol90/ESP8266Ping 
   #include <ESP8266HTTPClient.h>  // for wget
   #include <WiFiClientSecureBearSSL.h> // for wget
+  auto stacksize() { return CONFIG_ARDUINO_LOOP_STACK_SIZE; }
 #endif
 #include <TinyVim.h>
 #include <vector>
@@ -34,6 +39,12 @@ string TinyBash::getWordEx(std::string& s, char sep) const
 #ifdef ESP32
 size_t freemem() { return esp_get_free_heap_size(); }
 void reset() { ESP.restart(); }
+#elif defined(EPOXY_DUINO)
+size_t freemem() {
+    long pages = sysconf(_SC_PHYS_PAGES);
+    long page_size = sysconf(_SC_PAGE_SIZE);
+    return pages * page_size;
+}
 #else
 size_t freemem() { return system_get_free_heap_size(); }
 void reset() { ESP.reset(); }
@@ -189,6 +200,7 @@ void TinyBash::onCommandInt(const string& s)
       long l = getInt(args);
       *stdout << l << ", " << hex(l) << endl;
     }},
+#ifdef TINY_BASH_PING
     { "ping", [](string& args) {
       if (Ping.ping(args.c_str()))
       *stdout << "Ping " << args << ": " << Ping.averageTime() << "ms" << endl;
@@ -196,6 +208,7 @@ void TinyBash::onCommandInt(const string& s)
         *stdout << "unable to join " << args << endl;
       }
     },
+#endif
     { {"print_at", "x y str"}, [](string& args)
     {
       Term.saveCursor();
@@ -598,7 +611,7 @@ void TinyBash::onCommandInt(const string& s)
     },
     { "pwd", [this](string& args) { *stdout << env.cwd << endl; }},
     { "free", [](string& args) {
-      *stdout << "Stack size " << CONFIG_ARDUINO_LOOP_STACK_SIZE << endl;
+      *stdout << "Stack size " << stacksize() << endl;
       *stdout << "m: free mem " << freemem() << endl;
     }},
     { { "ansi", "str"}, [](string& args){

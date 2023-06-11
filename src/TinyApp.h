@@ -39,8 +39,8 @@ class TinyApp
 		Pid pid() const { return (Pid)this; }
 
 	protected:
-		TinyTerm* term;
 		TinyEnv env;
+		TinyTerm* term;
 
 	private:
 		TinyTerm::CallBackKey cb;
