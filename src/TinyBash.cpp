@@ -86,7 +86,7 @@ string TinyBash::buildPrompt(string ps1) const
           #ifdef ESP32
             prompt+="esp32";
           #else
-            prompt+='esp';
+            prompt+="esp";
           #endif
           break;
         case 'd': break; // date
