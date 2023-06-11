@@ -20,7 +20,11 @@ struct TinyEnv
 class TinyApp
 {
 	public:
+#if defined(EPOXY_DUINO)
+		using Pid = const uint64_t;
+#else
 		using Pid = const uint32_t;
+#endif
 		TinyApp(TinyTerm*, const TinyEnv& e);
 		virtual ~TinyApp();
 
