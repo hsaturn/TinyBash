@@ -8,6 +8,7 @@
 
 #if ESP32
   #include <ESP32Ping.h>  // marian-craciunescu/ESP32Ping 
+  long stacksize() { return CONFIG_ARDUINO_LOOP_STACK_SIZE; }
 #elif defined(EPOXY_DUINO)
 #include <sys/resource.h>
   void reset() {}
@@ -17,7 +18,7 @@
   #include <ESP8266Ping.h>  // dancol90/ESP8266Ping 
   #include <ESP8266HTTPClient.h>  // for wget
   #include <WiFiClientSecureBearSSL.h> // for wget
-  auto stacksize() { return CONFIG_ARDUINO_LOOP_STACK_SIZE; }
+  long stacksize() { return CONFIG_ARDUINO_LOOP_STACK_SIZE; }
 #endif
 #include <TinyVim.h>
 #include <vector>
