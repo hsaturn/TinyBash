@@ -268,7 +268,7 @@ void TinyBash::onCommandInt(const string& s)
         string dir=getWord(args);
         uint16_t size=getInt(args);
         if (size and (dir == "v" or dir == "h"))
-          Term << "split=" << main_splitter.split(wid, dir[0], size) << endl;
+          Term << "split=" << (int)main_splitter.split(wid, dir[0], size) << endl;
         else
           Term << "split error in args " << args << endl;
       }
@@ -325,13 +325,7 @@ void TinyBash::onCommandInt(const string& s)
     }},
     { { "vim", "files"}, [this](string& args) {
       string files=""; // TODO list<string> should be better
-      forEachFile(env.cwd, args, [&files](const string& name)->bool
-      {
-        if (files.length()) files +=' ';
-        files+=name;
-        return true;
-      });
-      apps.push_back(new TinyVim(&Term, env, files));
+      apps.push_back(new TinyVim(&Term, env, args));
   }},
     { { "head", "+n|-n file"}, [this](string& args) {
       int rows=getInt(args);
