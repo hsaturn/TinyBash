@@ -1,5 +1,7 @@
 #pragma once
 #include "TinyTerm.h"
+#include <map>
+#include <string>
 
 namespace tiny_bash
 {
@@ -15,6 +17,7 @@ extern Stream* stdin;
 struct TinyEnv
 {
 	std::string cwd = "/";
+  std::map<std::string,std::string> exports;
 };
 
 class TinyApp

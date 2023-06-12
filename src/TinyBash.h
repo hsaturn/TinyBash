@@ -27,7 +27,6 @@ class TinyBash : public TinyApp
     string buildPrompt(string ps1) const;
     void onCommandInt(const string& s);
     void onCommand(const string& s);
-    std::map<string,string> exports;
     mutable TinyConsole console;
 };
 

@@ -31,8 +31,8 @@ string TinyBash::getWordEx(std::string& s, char sep) const
   string r=getWord(s,sep);
   if (sep!='\'' and s.find('$')!=string::npos)
   {
-    for(auto it: exports) replace(r, '$'+it.first, it.second);
-    for(auto it: exports) replace(r, "${"+it.first+'}', it.second);
+    for(auto it: env.exports) replace(r, '$'+it.first, it.second);
+    for(auto it: env.exports) replace(r, "${"+it.first+'}', it.second);
   }
   return r;
 }
@@ -95,19 +95,21 @@ string TinyBash::buildPrompt(string ps1) const
       {
         case 'u': break; // user
         case 'h': 
+        case 'H':
           #ifdef ESP32
             prompt+="esp32";
           #else
             prompt+="esp";
           #endif
           break;
+        case 'e': prompt += (char)27;
         case 'd': break; // date
         case 't': prompt += std::to_string(millis()/1000.0); break;
         case 'n': prompt += "\r\n"; break;
         case 's': prompt += "TinyBash"; break;
         case '#': prompt += std::to_string(count); break; // count commands
-        case '$': prompt += '>'; break;
-        case 'W': prompt += env.cwd.substr(1); break;
+        case 'W':
+        case 'w': prompt += env.cwd.substr(1); break;
         default:
           prompt += '\\' + ps1[1];
       }
@@ -758,7 +760,7 @@ void TinyBash::onCommandInt(const string& s)
 
 void TinyBash::prompt() const
 {
-  auto it=exports.find("PS1");
+  auto it=env.exports.find("PS1");
   if (it != exports.end())
     console.setPrompt(buildPrompt(it->second).c_str());
   console.prompt();
@@ -785,6 +787,7 @@ void TinyBash::onMouse(const TinyTerm::MouseEvent& evt)
 
 TinyBash::TinyBash(TinyTerm& term, const TinyEnv& e) : TinyApp(&term,e), console(&term)
 {
+  env.exports["PS1"]="\\w> ";
   console.setCallback([this](const string& cmd) { onCommand(cmd); });
   Term.onMouse([this](const TinyTerm::MouseEvent& event) { onMouse(event); });
   if (!FILE_SYSTEM.begin())
