@@ -301,7 +301,7 @@ void TinyBash::onCommandInt(const string& s)
         }
         *stdout << endl;
       }},
-    { "export" , [this](string& args) {
+    { "export" , [](string& args) {
       string id=getIdentifier(args);
       if (id.length() and args[0]=='=')
       {
@@ -311,7 +311,7 @@ void TinyBash::onCommandInt(const string& s)
       else
         *stderr << "error" << endl;
     }},
-    { "unset", [this](string& args) {
+    { "unset", [](string& args) {
       string id=getIdentifier(args);
       if (id.length())
       {
@@ -326,17 +326,17 @@ void TinyBash::onCommandInt(const string& s)
       else
         *stdout << path << endl;
     }},
-    { { "test" }, [](string&)
+    { { "test" }, [env_bash=env](string&)
     {
       class App : public TinyApp
       {
         public:
-          App(TinyTerm* term) : TinyApp(term, env) {}
+          App(TinyTerm* term, const TinyEnv& env_bash) : TinyApp(term, env_bash) {}
           void onKey(TinyTerm::KeyCode) {}
       };
 
       *stdout << "m: free mem " << freemem() << endl;
-      delete(new App(&Term));
+      delete(new App(&Term, env_bash));
       *stdout << "m: free mem " << freemem() << endl;
     }},
     { { "vim", "files"}, [this](string& args) {
@@ -574,7 +574,7 @@ void TinyBash::onCommandInt(const string& s)
               ascii.clear();
             }
             *stdout << hdig(c>>4) << hdig(c&0xF);
-            if (c>=32 and c<=128)
+            if (c>=32 and c<=127)
               ascii+=c;
             else
               ascii+='.';
@@ -813,10 +813,10 @@ void TinyBash::loop()
     app->loop();
     if (app->state() == TinyApp::ENDED)
     {
-      Term << "app " << app->pid() << " ended" << freemem() << endl;
       delete app;
       apps.erase(it);
       if (apps.size()==0) prompt();
+      break;
     }
   }
 }

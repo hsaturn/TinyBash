@@ -4,6 +4,7 @@
 # Remove flto flag from EpoxyDuino (too many <optimized out>)
 # CXXFLAGS = -Wextra -Wall -std=gnu++11 -fno-exceptions -fno-threadsafe-statics
 
+CXX=clang
 APP_NAME := tiny_bash
 ARDUINO_LIBS := AUnit AceCommon AceTime AceUtils TinyMqtt EspMock ESP8266WiFi  ESPAsyncTCP TinyConsole TinyBash TinyTerm TinyVim EpoxyFS
 ARDUINO_LIB_DIRS := ../../../EspMock/libraries
@@ -16,8 +17,8 @@ EXTRA_CXXFLAGS=-g3 -O0 -std=c++17
 CXXFLAGS ?= -D_GNU_SOURCE -Werror=return-type -std=gnu++17 -Wall -g3 -O0
 
 # CLANG SANITIZE
-# CXX=clang
-# EXTRA_CXXFLAGS=-g3 -O0 -fsanitize=memory
-# LDFLAGS = -lpthread -lstdc++
+CXX=clang
+EXTRA_CXXFLAGS=-g3 -O0 -fsanitize=memory -stdlib=libc++
+LDFLAGS = -lpthread -lstdc++
 
 include ../../../EpoxyDuino/EpoxyDuino.mk
